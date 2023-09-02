@@ -42,7 +42,7 @@ class PetFriends:
         headers = {'auth_key': auth_key['key']}
         filter = {'filter': filter}
 
-        res = requests.get(self.base_url + 'api/pets', timeout=10, headers=headers, params=filter)
+        res = requests.get(self.base_url + 'api/pets', timeout=3, headers=headers, params=filter)
         status = res.status_code
         # result = ""
         try:

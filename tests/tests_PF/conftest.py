@@ -53,7 +53,7 @@ def auth_key():
     yield result
 
     # Проверяем что статус ответа = 200
-    assert status == 400
+    assert status == 200
 
 
 # Фикстура request даёт доступ и к другой полезной информации, которая позволяет лучше управлять
@@ -63,6 +63,7 @@ def request_fixture(request):
         print(f"\nЗапущен тест {request.function.__name__} из сьюта Дом Питомца")
     if 'get' in request.function.__name__:
         print(f"Запущен тест {request.function.__name__} c методом GET", '\n')
+
     print('Test name: ', request.function.__name__)
     # print(request.fixturename)   # название фикстуры
     print('Scope: ', request.scope)

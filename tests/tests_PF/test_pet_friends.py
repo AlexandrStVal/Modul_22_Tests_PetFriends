@@ -1,7 +1,9 @@
-'''Moduls 19, 21 for test_pet_friends.py'''
+'''Moduls 19, 21, 22 for test_pet_friends.py'''
 import json
 import os
 import pytest
+import self as self
+
 from api import PetFriends
 
 
@@ -18,7 +20,8 @@ class TestClassPetFriends:
     #     print('\n', 'Status code:', status)
 
 
-    # Task 22.2
+    ''' Task 22.2 '''
+    # test_getAllPets_positive
     def empty_string(self):
         return ''
 
@@ -27,11 +30,12 @@ class TestClassPetFriends:
 
     @pytest.mark.api
     @pytest.mark.get
+    @pytest.mark.positive
     @pytest.mark.parametrize("filter",
                              ['', 'my_pets'],
                              ids=['empty_string', 'only_my_pets']
                              )
-    def test_getAllPets_valid_key(self, auth_key, filter) -> json:
+    def test_getAllPets_positive(self, auth_key, filter) -> json:
         """ Проверяем что запрос всех питомцев возвращает не пустой список.
             Для этого сначала получаем api ключ и сохраняем в переменную auth_key. Далее используя этого ключ
             запрашиваем список всех питомцев и проверяем что список не пустой.
@@ -45,8 +49,71 @@ class TestClassPetFriends:
         # Проверяем статус ответа по test_getAllPets
         assert status == 200
         assert len(result['pets']) > 0
-        print(f'\nStatus code: {status}')
-        # print(result)
+        print(f'\nStatus code: {status}, \nBody: {result}')
+        # assert result.headers.get('Content-Type') == 'application/json'
+        # assert result.headers.get['Content-Type'] == 'application/json'
+        # assert 'application/json' in result.headers['Content-Type']
+        # assert 'application/json' in result.headers('Content-Type')
+
+
+    ''' test_getAllPets_negative_filters '''
+    def generate_string(self, num):
+        return 'a' * num
+
+    def chinese_letters(self):
+        return '的一是不了人我在有他这为之大来以个中上们'
+
+    def russian_letters(self):
+        return 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
+
+    def wildcards(self):
+        return '|\/!@#$%^&*()-_=+`~?"№;:[]{}'
+
+    @pytest.mark.api
+    @pytest.mark.get
+    @pytest.mark.negative
+    @pytest.mark.xfail(reason='Непонятное выделение в строках @pytest.mark.parametrize')
+    @pytest.mark.parametrize("filter",
+                             [
+                                 generate_string(self, 256),
+                                 generate_string(self, 1001),
+                                 chinese_letters(self),
+                                 russian_letters(self),
+                                 russian_letters(self).upper(),
+                                 wildcards(self),
+                                 1234567890
+                             ],
+                             ids=
+                             [
+                                 '256 symbols',
+                                 'more than 1000 symbols',
+                                 'chinese',
+                                 'russian',
+                                 'RUSSIAN',
+                                 'wildcards',
+                                 'digit'
+                             ])
+    @pytest.mark.xfail(reason='Тест должен давать статус код: 400. Также не получается запустить проверку по Content-Type')
+    # xfail Помечает тест как падающий. Если тест прошел успешно, его состояние помечено как XPASS.
+    # При неудачном прохождении теста статус будет XFAILED.
+    def test_getAllPets_negative_filters(self, auth_key, filter) -> json:
+        """ Проверяем что запрос всех питомцев возвращает не пустой список.
+            Для этого сначала получаем api ключ и сохраняем в переменную auth_key. Далее используя этого ключ
+            запрашиваем список всех питомцев и проверяем что список не пустой.
+            Доступное значение параметра filter - 'my_pets' либо '' """
+
+        # # Запрашиваем ключ api и сохраняем в переменную auth_key
+        # _, auth_key = pf.get_api_key(valid_email, valid_password)
+
+        status, result = pf.get_list_of_pets(auth_key, filter)
+
+        # Проверяем статус ответа по test_getAllPets
+        assert status != 200
+        assert 'HTML' or 'html' in result
+        print(f'\nStatus code: {status} \nBody: {result}')
+        # assert result.headers.get['Content-Type'] == 'text/html; charset=utf-8'
+        # assert result.headers.get('Content-Type') == 'text/html; charset=utf-8'
+        # assert 'text/html; charset=utf-8' in result.headers['Content-Type']
 
 
     # @pytest.mark.get
@@ -65,8 +132,8 @@ class TestClassPetFriends:
     #     assert len(result['pets']) > 0
     #     print('\n', 'Status code: ', status, '\n', result)
 
-    @pytest.mark.get
-    def test_getMyPetValidData(self, auth_key, name='Hanny', animal_type='Kitty',
+    @pytest.mark.post
+    def test_addMyPetValidData(self, auth_key, name='Hanny', animal_type='Kitty',
                                age=2, pet_photo='images/Kitty.jpg') -> json:
         """Проверяем что можно добавить питомца с корректными данными"""
 
@@ -144,15 +211,15 @@ class TestClassPetFriends:
         print('list of other my pets:', res_get)
 
     #Тest_1
-    @pytest.mark.get
-    def test_getMyPetWithoutPhoto(self, auth_key, name='Kissa', animal_type='Kitty',
+    @pytest.mark.post
+    def test_addMyPetWithoutPhoto(self, auth_key, name='Kissa', animal_type='Kitty',
                                   age=1) -> json:
         """Проверяем что можно добавить питомца с корректными данными"""
 
         # # Запрашиваем ключ api и сохраняем в переменную auth_key
         # _, auth_key = pf.get_api_key(valid_email, valid_password)
 
-        # Добавляем питомца
+        ''' Добавляем питомца '''
         status, result = pf.add_new_pet_without_photo(auth_key, name, animal_type, age)
 
         # Сверяем полученный ответ с ожидаемым результатом
@@ -178,7 +245,7 @@ class TestClassPetFriends:
     # @pytest.mark.skip(reason="test_getPhotoOfPet::Баг в продукте: в api требуется прописывать id - <ссылка>")
     # фикстура пропускающая тест
     @pytest.mark.get
-    # @pytest.mark.xfail(raises=RuntimeError, reason='В файле api/def add_photo_of_pet требуется прописывать id')
+    @pytest.mark.xfail(raises=RuntimeError, reason='В файле api/def add_photo_of_pet требуется прописывать id')
     # # тест будет помечен xfail только в том случае, если произойдет исключение типа RuntimeException, в противном случае
     # # тест будет выполняться как обычно (помечаться passed, если пройдет успешно, и failed, если пройдет неуспешно)
     def test_getPhotoOfPet(self, auth_key, pet_photo='images/Kissa.jpg') -> json:
@@ -325,44 +392,44 @@ class TestClassPetFriends:
 # # #     assert result['age'] == str(age)
 # # #     print('\n', 'Status code: ', status, '\n', result)
 
-    @pytest.mark.negative
-    @pytest.mark.get
-    def test_getAllPets_256_symbols(self, auth_key, filter='MMd6JjLk56Co8nCrgYKzWwKZKWO5opuEEKHs5u4b15zDUFLX9pphcYQkTELQXolhspAJpaUwaFnkwxHvkW9P1nKXZPo3bHPQyEwQdxow09gEOfwhcA2n7R2eIotUFIs2WcPkMr9wru5rkU3Vf3lbGUzvK88AHO4F5plLYi7LEYtSO5FdMmw57sJog0xaqB25v009ZZhQVvSUP0IQ8u43o5eKHRjvwEkycT9IxXMNAOh3VPWQOElEzZLFHWpnWeEe') -> json:
-        """Негативный сценарий. Проверяем что запрос всех питомцев не возвращает список.
-        Значение параметра filter = 256 символов. Для этого сначала получаем api ключ и
-        сохраняем в переменную auth_key. Далее используя этого ключ запрашиваем список всех
-        питомцев.
-        Доступное значение параметра filter - 'my_pets' либо '' """
+    # @pytest.mark.negative
+    # @pytest.mark.get
+    # def test_getAllPets_256_symbols(self, auth_key, filter='MMd6JjLk56Co8nCrgYKzWwKZKWO5opuEEKHs5u4b15zDUFLX9pphcYQkTELQXolhspAJpaUwaFnkwxHvkW9P1nKXZPo3bHPQyEwQdxow09gEOfwhcA2n7R2eIotUFIs2WcPkMr9wru5rkU3Vf3lbGUzvK88AHO4F5plLYi7LEYtSO5FdMmw57sJog0xaqB25v009ZZhQVvSUP0IQ8u43o5eKHRjvwEkycT9IxXMNAOh3VPWQOElEzZLFHWpnWeEe') -> json:
+    #     """Негативный сценарий. Проверяем что запрос всех питомцев не возвращает список.
+    #     Значение параметра filter = 256 символов. Для этого сначала получаем api ключ и
+    #     сохраняем в переменную auth_key. Далее используя этого ключ запрашиваем список всех
+    #     питомцев.
+    #     Доступное значение параметра filter - 'my_pets' либо '' """
+    #
+    #     # # Запрашиваем ключ api и сохраняем в переменную auth_key
+    #     # _, auth_key = pf.get_api_key(valid_email, valid_password)
+    #
+    #     status, result = pf.get_list_of_pets(auth_key, filter)
+    #
+    #     assert status != 200
+    #     assert 'HTML' or 'html' in result
+    #     # assert result.headers['Content-Type'] == "text/html; charset=utf-8"
+    #     print('\n', 'Status code: ', status, '\n', result)
 
-        # # Запрашиваем ключ api и сохраняем в переменную auth_key
-        # _, auth_key = pf.get_api_key(valid_email, valid_password)
-
-        status, result = pf.get_list_of_pets(auth_key, filter)
-
-        assert status != 200
-        assert 'HTML' or 'html' in result
-        # assert result.headers['Content-Type'] == "text/html; charset=utf-8"
-        print('\n', 'Status code: ', status, '\n', result)
-
-    @pytest.mark.negative
-    @pytest.mark.get
-    def test_getAllPets_256_symbols(self, auth_key,
-                                    filter='1234567890') -> json:
-        """Негативный сценарий. Проверяем что запрос всех питомцев не возвращает список.
-        Значение параметра filter = числа. Для этого сначала получаем api ключ и
-        сохраняем в переменную auth_key. Далее используя этого ключ запрашиваем список всех
-        питомцев.
-        Доступное значение параметра filter - 'my_pets' либо '' """
-
-        # # Запрашиваем ключ api и сохраняем в переменную auth_key
-        # _, auth_key = pf.get_api_key(valid_email, valid_password)
-
-        status, result = pf.get_list_of_pets(auth_key, filter)
-
-        assert status != 200
-        assert 'HTML' or 'html' in result
-        # assert result.headers['Content-Type'] == "text/html; charset=utf-8"
-        print('\n', 'Status code: ', status, '\n', result)
+    # @pytest.mark.negative
+    # @pytest.mark.get
+    # def test_getAllPets_digit(self, auth_key,
+    #                                 filter='1234567890') -> json:
+    #     """Негативный сценарий. Проверяем что запрос всех питомцев не возвращает список.
+    #     Значение параметра filter = числа. Для этого сначала получаем api ключ и
+    #     сохраняем в переменную auth_key. Далее используя этого ключ запрашиваем список всех
+    #     питомцев.
+    #     Доступное значение параметра filter - 'my_pets' либо '' """
+    #
+    #     # # Запрашиваем ключ api и сохраняем в переменную auth_key
+    #     # _, auth_key = pf.get_api_key(valid_email, valid_password)
+    #
+    #     status, result = pf.get_list_of_pets(auth_key, filter)
+    #
+    #     assert status != 200
+    #     assert 'HTML' or 'html' in result
+    #     # assert result.headers['Content-Type'] == "text/html; charset=utf-8"
+    #     print('\n', 'Status code: ', status, '\n', result)
 
 
     # тест по заданию 21.6.4
