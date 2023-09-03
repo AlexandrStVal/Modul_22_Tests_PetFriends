@@ -37,7 +37,6 @@ pf = PetFriends()
 # Pre-request
 # autouse=True - для автоматической отработки
 # scope="class" - запускается для каждого тестового класса
-
 @pytest.fixture(scope="class", autouse=True)
 def auth_key():
     """ Проверяем, что запрос api-ключа возвращает статус 200 и в результате содержится слово key"""
@@ -60,9 +59,9 @@ def auth_key():
 @pytest.fixture(autouse=True)  # не работает со scope='class'
 def request_fixture(request):
     if 'Pet' in request.function.__name__:
-        print(f"\nЗапущен тест {request.function.__name__} из сьюта Дом Питомца")
+        print(f'\nЗапущен тест {request.function.__name__} из сьюта Дом Питомца\n')
     if 'get' in request.function.__name__:
-        print(f"Запущен тест {request.function.__name__} c методом GET", '\n')
+        print(f'\nЗапущен тест {request.function.__name__} c методом GET\n')
 
     print('Test name: ', request.function.__name__)
     # print(request.fixturename)   # название фикстуры
