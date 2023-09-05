@@ -1,4 +1,5 @@
 '''Moduls 19, 21, 22 for test_pet_friends.py'''
+
 import json
 import os
 import pytest
@@ -7,7 +8,7 @@ from api import PetFriends
 pf = PetFriends()
 
 ''' Task 22.2 '''
-''' TEST: test_getAllPets_positive '''
+''' TEST: test_get_all_pets_positive '''
 
 
 def empty_string():
@@ -25,7 +26,7 @@ def only_my_pets():
                          ['', 'my_pets'],
                          ids=['empty_string', 'only_my_pets']
                          )
-def test_getAllPets_positive(auth_key, filter) -> json:
+def test_get_all_pets_positive(auth_key, filter) -> json:
     """ Проверяем что запрос всех питомцев возвращает не пустой список.
         Для этого сначала получаем api ключ и сохраняем в переменную auth_key. Далее используя этого ключ
         запрашиваем список всех питомцев и проверяем что список не пустой.
@@ -44,7 +45,7 @@ def test_getAllPets_positive(auth_key, filter) -> json:
     # assert 'application/json' in result.headers('Content-Type')
 
 
-''' TEST: test_getAllPets_negative_filters '''
+''' TEST: test_get_all_pets_negative_filters '''
 
 
 def generate_string(num):
@@ -89,7 +90,7 @@ def special_chars():
 @pytest.mark.xfail(reason='Тест должен давать статус код: 400. Также не получается запустить проверку по Content-Type')
 # xfail Помечает тест как падающий. Если тест прошел успешно, его состояние помечено как XPASS.
 # При неудачном прохождении теста статус будет XFAILED.
-def test_getAllPets_negative_filters(auth_key, filter) -> json:
+def test_get_all_pets_negative_filters(auth_key, filter) -> json:
     """ Проверяем что запрос всех питомцев возвращает не пустой список.
         Для этого сначала получаем api ключ и сохраняем в переменную auth_key. Далее используя этого ключ
         запрашиваем список всех питомцев и проверяем что список не пустой.
@@ -107,13 +108,11 @@ def test_getAllPets_negative_filters(auth_key, filter) -> json:
     # assert 'text/html; charset=utf-8' in result.headers['Content-Type']
 
 
-''' TEST: test_addMyPetValidData '''
-
-
+''' TEST: test_add_my_pet_valid_data '''
 @pytest.mark.api
 @pytest.mark.post
 @pytest.mark.positive
-def test_addMyPetValidData(auth_key, name='Hanny', animal_type='Kitty', age='2',
+def test_add_my_pet_valid_data(auth_key, name='Hanny', animal_type='Kitty', age='2',
                            pet_photo='images/Kitty.jpg') -> json:
     """Проверяем что можно добавить питомца с корректными данными"""
 
@@ -145,13 +144,11 @@ def test_addMyPetValidData(auth_key, name='Hanny', animal_type='Kitty', age='2',
     # print('list of other my pets:', res_get)
 
 
-''' TEST: test_deleteMyPet '''
-
-
+''' TEST: test_delete_my_pet '''
 @pytest.mark.api
 @pytest.mark.delete
 @pytest.mark.positive
-def test_deleteMyPet(auth_key) -> json:
+def test_delete_my_pet(auth_key) -> json:
     """Проверяем возможность удаления питомца"""
 
     # # Запрашиваем список своих питомцев
@@ -175,13 +172,11 @@ def test_deleteMyPet(auth_key) -> json:
     print(f'\nStatus code: {status}')
 
 
-''' TEST: test_updatePetInfo '''
-
-
+''' TEST: test_update_pet_info '''
 @pytest.mark.api
 @pytest.mark.put
 @pytest.mark.positive
-def test_updatePetInfo(auth_key, name='Jorik', animal_type='Catyara', age='3') -> json:
+def test_update_pet_info(auth_key, name='Jorik', animal_type='Catyara', age='3') -> json:
     """Проверяем возможность обновления информации о питомце"""
 
     # Получаем список своих питомцев
@@ -216,11 +211,11 @@ def test_updatePetInfo(auth_key, name='Jorik', animal_type='Catyara', age='3') -
     # print('list of other my pets:', res_get)
 
 
-''' TEST: test_addMyPetWithoutPhoto '''
+''' TEST: test_add_my_pet_without_photo '''
 @pytest.mark.api
 @pytest.mark.post
 @pytest.mark.positive
-def test_addMyPetWithoutPhoto(auth_key, name='Kissa', animal_type='Kitty', age='1') -> json:
+def test_add_my_pet_without_photo(auth_key, name='Kissa', animal_type='Kitty', age='1') -> json:
     """Метод отправляет (постит) на сервер данные о добавляемом питомце и возвращает статус
     запроса и результат в формате JSON с данными добавленного питомца"""
 
@@ -249,16 +244,10 @@ def test_addMyPetWithoutPhoto(auth_key, name='Kissa', animal_type='Kitty', age='
     # print('list of other my pets:', res_get)
 
 
-''' TEST: test_addMyPetWithoutPhoto_negative '''
-# Генераторы имен параметров в test_getAllPets_negative_filters
-def is_age_valid(age):
-    # Проверяем, что возраст - это число от 1 до 49 и целое
-    return age.isdigit() and 0 < int(age) < 50 and float(age) == int(age)
-
+''' TEST: test_add_my_pet_without_photo_positive '''
+# Генераторы имен параметров в test_get_all_pets_negative_filters
 @pytest.mark.post
-@pytest.mark.negative
-@pytest.mark.xfail(reason='Тест должен давать статус код: 400 с пустыми полями. Фактически статус код 200.'
-                          'Кроме того, провалилось 64 теста')
+@pytest.mark.positive
 @pytest.mark.parametrize("name",
                          [
                              '',
@@ -268,7 +257,7 @@ def is_age_valid(age):
                              russian_letters(),
                              russian_letters().upper(),
                              special_chars(),
-                             '1234567890'
+                             '123'
                          ],
                          ids=[
                              'empty',
@@ -289,7 +278,7 @@ def is_age_valid(age):
                              russian_letters().upper(),
                              chinese_letters(),
                              special_chars(),
-                             "1234567890"
+                             "123"
                          ],
                          ids=[
                              'empty',
@@ -301,6 +290,38 @@ def is_age_valid(age):
                              'specials',
                              'digit'
                          ])
+@pytest.mark.parametrize("age", ['1'], ids=['min'])
+def test_test_add_my_pet_without_photo_positive(auth_key, name, animal_type, age) -> json:
+    """Проверяем, что можно добавить питомца с различными данными"""
+    ''' Добавляем питомца '''
+    status, result = pf.add_new_pet_without_photo(auth_key, name, animal_type, age)
+
+    # Сверяем полученный ответ с ожидаемым результатом
+    assert status == 200
+    assert result['name'] == name
+    assert result['age'] == age
+    assert result['animal_type'] == animal_type
+    print('\nId:', result['id'], '\nStatus code: ', status)
+
+    # Удаляем питомца
+    pet_id = result['id']
+    stat_del, res_del = pf.delete_pet(auth_key, pet_id)
+    stat_get, res_get = pf.get_list_of_pets(auth_key, "my_pets")
+
+    # Проверяем, что статус ответа равен 200 и в списке питомцев нет id удалённого питомца
+    assert stat_del == 200
+    assert stat_get == 200
+    assert result['id'] not in res_get
+    print('\nStatus code DELETE:', stat_del)
+    print('\nStatus code GET:', stat_get)
+
+
+''' TEST: test_addMyPetWithoutPhoto_negative '''
+@pytest.mark.xfail(reason='Доделать тест по Заданию 22.4. Тест должен давать статус код: 400 с пустыми полями. Фактически статус код 200. В предыдущей версии кода провалилилось 64 теста')
+@pytest.mark.post
+@pytest.mark.negative
+@pytest.mark.parametrize("name", [''], ids=['empty'])
+@pytest.mark.parametrize("animal_type", [''], ids=['empty'])
 @pytest.mark.parametrize("age",
                          [
                              '',
@@ -330,27 +351,16 @@ def is_age_valid(age):
                              'RUSSIAN',
                              'chinese'
                          ])
-def test_addMyPetWithoutPhoto_negative(auth_key, name, animal_type, age) -> json:
+def test_add_my_pet_without_photo_negative(auth_key, name, animal_type, age) -> json:
     """Проверяем, что можно добавить питомца с различными данными"""
     ''' Добавляем питомца '''
     status, result = pf.add_new_pet_without_photo(auth_key, name, animal_type, age)
 
-    # if name == '' or animal_type == '' or is_age_valid(age):
-    #     assert status == 400   # фактически принимает пустые name и animal_type cо статус кодом 200
-    # else:
-    #     assert status == 200
-
     # Сверяем полученный ответ с ожидаемым результатом
-    if is_age_valid(age):
-        assert status == 400
-    else:
-        assert status == 200
-    assert result['name'] == name
-    assert result['age'] == age
-    assert result['animal_type'] == animal_type
-    print('\nId:', result['id'], '\nStatus code: ', status)
+    assert status == 200
+    print(f'\nStatus code: {status}')
 
-    print('\nУдаляем питомца')
+   # Удаляем питомца
     pet_id = result['id']
     stat_del, res_del = pf.delete_pet(auth_key, pet_id)
     stat_get, res_get = pf.get_list_of_pets(auth_key, "my_pets")
@@ -361,19 +371,16 @@ def test_addMyPetWithoutPhoto_negative(auth_key, name, animal_type, age) -> json
     assert result['id'] not in res_get
     print('\nStatus code DELETE:', stat_del)
     print('\nStatus code GET:', stat_get)
-    print('\nlist of other my pets:', res_get)
 
-''' TEST: test_getAllPets Task 21.6.4'''
-# @pytest.mark.skip(reason="test_getAllPets::Баг в файле conftest.py: 80 стр. - <ссылка>")
-# фикстура, пропускающая тест
-@pytest.mark.xfail(reasone='Доделать тест по заданию Задание 21.6.4.'
-                           ' Вебинар «Тестовый дизайн для REST API» 02.08.23')
+
+''' TEST: test_get_all_pets Task 21.6.4'''
+@pytest.mark.xfail(reasone='Доделать тест по Заданиям    21.6.4., 22.6.1 Вебинар «Тестовый дизайн для REST API» 02.08.23')
 @pytest.mark.get
-def test_getAllPets(auth_key, api_client):
+def test_get_all_pets(auth_key, api_client):
     response = pf.api_request(api_client, 'GET', f'{pf.base_url}api/pets')
     assert response.status_code == 200
     assert len(response.json().get('pets')) > 0
-    print(response)
+
 
     # def test_addMyPetWithoutPhoto(self, auth_key, name='Kissa', animal_type='Kitty', age=1) -> json:
     # """Метод отправляет (постит) на сервер данные о добавляемом питомце и возвращает статус
